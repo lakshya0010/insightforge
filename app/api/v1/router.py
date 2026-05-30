@@ -43,13 +43,6 @@ async def get_me(current_user: User = Depends(get_current_user)):
     return UserResponse.model_validate(current_user)
 
 
-@router.post("/users", response_model=UserResponse, status_code=201)
-async def create_user(user:UserCreate, service: UserService = Depends(get_user_service)):
-    try:
-        return await service.create_user(user)
-    except ValueError as e:
-        raise HTTPException(status_code=409, detail=str(e))
-
 @router.get("/users/{user_id}", response_model=UserResponse)
 async def get_user(user_id:int, service: UserService = Depends(get_user_service), _:User = Depends(get_current_user)):
     user = await service.get_user(user_id)
