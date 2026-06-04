@@ -9,6 +9,7 @@ from app.core.database import Base
 # the models with Base.metadata. Without this, Alembic won't
 # see your tables and will generate empty migrations.
 from app.models import user  # noqa: F401
+from app.models import statement #noqa: F401
 
 config = context.config
 fileConfig(config.config_file_name)

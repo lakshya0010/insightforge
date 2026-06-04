@@ -14,7 +14,7 @@ class Statement(Base):
     month: Mapped[str] = mapped_column(String(7), nullable=False)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="processing")
     uploaded_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    transactions: Mapped[list["Transaction"]] = relationship("Transaction", back_populates="statement", uselist=False, cascade="all, delete-orphan")
+    transactions: Mapped[list["Transaction"]] = relationship("Transaction", back_populates="statement", cascade="all, delete-orphan")
     report: Mapped[Optional["Report"]] = relationship("Report", back_populates="statement", uselist=False, cascade="all, delete-orphan")
 
 class Transaction(Base):
