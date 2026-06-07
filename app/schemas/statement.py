@@ -24,6 +24,7 @@ class ReportOut(BaseModel):
     created_at: datetime
 
 class StatementOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: int
     filename: str
     month: str

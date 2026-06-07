@@ -34,7 +34,7 @@ class StatementRepository:
             Transaction(
                 statement_id = statement_id,
                 date = pt.date,
-                description = pt.discription,
+                description = pt.description,
                 amount = pt.amount,
                 type = pt.type,
                 category = None
@@ -59,20 +59,19 @@ class StatementRepository:
             query = query.where(Statement.user_id == user_id)
         
         result = await self.db.execute(query)
-        return result.scalar_one_or_none
+        return result.scalar_one_or_none()
     
     async def get_all_by_user(self, user_id:int) -> list[Statement]:
         result = await self.db.execute(select(Statement).where(Statement.user_id == user_id).order_by(Statement.uploaded_at.desc()))
-        return list(result.scalars.all())
+        return list(result.scalars().all())
     
     async def get_transactions(self, statement_id:int)->list[Transaction]:
         result = await self.db.execute(
-            select(Transaction).
-            where(Transaction.statement_id == statement_id).order_by(Transaction.id)
+            select(Transaction).where(Transaction.statement_id == statement_id).order_by(Transaction.id)
         )
         return list(result.scalars().all())
     
-    
+
         
         
         
