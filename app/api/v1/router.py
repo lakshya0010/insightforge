@@ -12,6 +12,7 @@ from app.services.parser_service import CSVParserService
 from app.services.statement_service import StatementService
 from app.schemas.statement import StatementOut, StatementDetailOut
 from app.repositories.statement_repo import StatementRepository
+from app.services.llm_service import LLMService
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -23,7 +24,8 @@ def get_user_service(db: AsyncSession = Depends(get_db)) -> UserService:
 def get_statement_service(db: AsyncSession = Depends(get_db))-> StatementService:
     repo = StatementRepository(db)
     parser = CSVParserService()
-    return StatementService(repo, parser)
+    llm = LLMService()
+    return StatementService(repo, parser, llm)
 
 
 @router.get("/health")

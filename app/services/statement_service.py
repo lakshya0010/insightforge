@@ -1,14 +1,16 @@
 import logging
 from app.repositories.statement_repo import StatementRepository
 from app.services.parser_service import CSVParserService
-from app.schemas.statement import StatementOut, StatementDetailOut, TransactionOut
+from app.schemas.statement import StatementOut, StatementDetailOut, TransactionOut, ReportOut
+from app.services.llm_service import LLMService
 
 logger = logging.getLogger(__name__)
 
 class StatementService:
-    def __init__(self, repo: StatementRepository, parser: CSVParserService):
+    def __init__(self, repo: StatementRepository, parser: CSVParserService, llm: LLMService):
         self.repo = repo
         self.parser = parser
+        self.llm = llm
 
     async def upload_statement(
             self,
@@ -28,9 +30,23 @@ class StatementService:
 
         statement = await self.repo.create_statement(user_id = user_id, filename=filename, month=month)
         try:
-            await self.repo.save_transactions(
+            transactions = await self.repo.save_transactions(
                 statement_id=statement.id,
                 parsed_transactions=parsed_transactions
+            )
+
+            categories = await self.llm.categorize_transactions(transactions)
+            print(f"CATEGORIES RESULT: {categories}")
+
+            await self.repo.update_transaction_categories(transactions, categories)
+
+            report_data = await self.llm.generate_report(transactions, month)
+            await self.repo.create_report(
+                statement_id=statement.id,
+                summary=report_data["summary"],
+                total_income=report_data["total_income"],
+                total_expenses=report_data["total_expenses"],
+                category_breakdown=report_data["category_breakdown"]
             )
 
             await self.repo.update_status(statement.id, "done")
@@ -69,6 +85,7 @@ class StatementService:
             raise ValueError("Statement not found")
         
         transactions = await self.repo.get_transactions(statement_id)
+        report = await self.repo.get_report(statement_id)
 
         return StatementDetailOut(
             id = statement.id,
@@ -77,6 +94,6 @@ class StatementService:
             status=statement.status,
             uploaded_at=statement.uploaded_at,
             transactions=[TransactionOut.model_validate(t) for t in transactions],
-            report=None
+            report=ReportOut.model_validate(report) if report else None
         )
 

@@ -2,12 +2,49 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Optional
 from app.models.statement import Statement, Transaction, Report
+from decimal import Decimal
 
 
 class StatementRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
+
+    async def get_report(self, statement_id: int) -> Optional[Report]:
+        result = await self.db.execute(
+            select(Report).where(Report.statement_id == statement_id)
+        )
+        return result.scalar_one_or_none()
     
+    async def update_transaction_categories(
+            self,
+            trasactions: list[Transaction],
+            categories: list[str]
+    )->None:
+        for transaction,category in zip(trasactions, categories):
+            transaction.category = category
+        await self.db.commit()
+        
+    
+    async def create_report(
+            self,
+            statement_id:int,
+            summary:str,
+            total_income:float,
+            total_expenses: float,
+            category_breakdown: dict
+    ) -> Report:
+        report = Report(
+            statement_id = statement_id,
+            summary = summary,
+            total_expenses = Decimal(str(total_expenses)),
+            total_income = Decimal(str(total_income)),
+            category_breakdown = category_breakdown
+        )
+        self.db.add(report)
+        await self.db.commit()
+        await self.db.refresh(report)
+        return report
+
     async def create_statement(
             self,
             user_id: int,
