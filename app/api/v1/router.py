@@ -32,7 +32,7 @@ def get_statement_service(db: AsyncSession = Depends(get_db))-> StatementService
 async def health_check():
     return APIResponse.ok(data={"status":"ok"})
 
-@router.post("/auth/register", response_model=UserResponse, status_code=201)
+@router.post("/auth/register", status_code=201)
 async def register(
     user: UserCreate,
     service: UserService = Depends(get_user_service)
@@ -44,7 +44,7 @@ async def register(
     except ValueError as e:
         raise HTTPException(status_code=409, detail=str(e))
 
-@router.post("/auth/login", response_model=APIResponse[TokenResponse])
+@router.post("/auth/login")
 async def login(
     credentials: LoginRequest,
     service: UserService = Depends(get_user_service)
