@@ -1,6 +1,8 @@
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
+from app.core.config import settings
+import os
 
 # Import Base so Alembic knows your table definitions
 from app.core.database import Base
@@ -35,6 +37,7 @@ def run_migrations_online() -> None:
         config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        url=settings.DATABASE_URL_SYNC
     )
     with connectable.connect() as connection:
         context.configure(
