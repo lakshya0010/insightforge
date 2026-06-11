@@ -2,7 +2,7 @@
 
 > AI-powered personal finance analyzer. Upload your bank statement, get intelligent spending insights.
 
-**Live Demo:** https://insightforge-production-4e8e.up.railway.app
+**Live Demo:** https://endearing-commitment-production-44a6.up.railway.app
 
 ---
 
