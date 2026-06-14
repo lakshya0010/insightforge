@@ -67,10 +67,10 @@ async def upload_statement(
     current_user: User = Depends(get_current_user),
     service: StatementService = Depends(get_statement_service)
 ):
-    if not file.filename.endswith(".csv"):
+    if not file.filename.endswith(".csv",".pdf"):
         raise HTTPException(
             status_code= 400,
-            detail="Only CSV file accepted"
+            detail="Only CSV and PDF file accepted"
         )
     
     content = await file.read()

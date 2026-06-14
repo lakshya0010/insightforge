@@ -107,9 +107,10 @@ def show_dashboard():
     st.subheader("Upload New Statement")
     uploaded_file = st.file_uploader(
         "Choose a CSV file",
-        type=["csv"],
-        help="Upload your bank statement in CSV format"
+        type=["csv","pdf"],
+        help="PDF recommended. CSV supported for select bank formats."
     )
+    st.caption("Note: Currently optimized for monthly statements.")
 
     if uploaded_file and st.button("Analyze Statement"):
         with st.spinner("Analyzing your statement... This may take 10-15 seconds."):
@@ -124,8 +125,12 @@ def show_dashboard():
             st.session_state["view_statement_id"] = result["data"]["id"]
             st.rerun()
         else:
-            error = result.get("error",{})
-            st.error(error.get("message", "Upload failed"))
+            error = result.get("error", {})
+            message = error.get("message", "Unknown error")
+            st.error(f"Upload failed: {message}")
+    
+            with st.expander("Error details"):
+                st.json(result)
 
     st.divider()
 

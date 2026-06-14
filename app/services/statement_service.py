@@ -63,7 +63,7 @@ class StatementService:
                 f"Failed to process statement {statement.id}: {str(e)}",
                 exc_info=True
             )
-            raise ValueError("Failed to process statement. Please try again.")
+            raise ValueError(f"Failed to process statement:{str(e)}")
         
 
         return StatementOut.model_validate(statement)
