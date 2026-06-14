@@ -106,7 +106,7 @@ def show_dashboard():
 
     st.subheader("Upload New Statement")
     uploaded_file = st.file_uploader(
-        "Choose a CSV file",
+        "Choose a PDF(or CSV) file",
         type=["csv","pdf"],
         help="PDF recommended. CSV supported for select bank formats."
     )
