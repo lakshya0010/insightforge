@@ -21,6 +21,7 @@ class ReportOut(BaseModel):
     total_income: Optional[Decimal] = None
     total_expenses: Optional[Decimal] = None
     category_breakdown: Optional[dict] = None
+    top_transfers: Optional[dict] = None
     created_at: datetime
 
 class StatementOut(BaseModel):

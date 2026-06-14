@@ -211,6 +211,17 @@ def show_statement_detail(statement_id:int):
                 columns=["Category", "Amount (₹)"]
             ).sort_values("Amount (₹)", ascending=False)
             st.dataframe(df_breakdown, use_container_width=True, hide_index=True)
+        
+        # Top transfers
+        if report.get("top_transfers"):
+            st.divider()
+            st.subheader("👥 Top People You Transacted With")
+            transfers = report["top_transfers"]
+            df_transfers = pd.DataFrame(
+                list(transfers.items()),
+                columns=["Person", "Total Amount (₹)"]
+            ).sort_values("Total Amount (₹)", ascending=False)
+            st.dataframe(df_transfers, use_container_width=True, hide_index=True)
 
     st.divider()
     st.subheader("📋 All Transactions")

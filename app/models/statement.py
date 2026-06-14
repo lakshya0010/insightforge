@@ -42,6 +42,7 @@ class Report(Base):
         Numeric(10, 2), nullable=True
     )
     category_breakdown: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    top_transfers: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now()

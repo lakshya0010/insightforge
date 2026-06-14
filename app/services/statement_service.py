@@ -46,7 +46,8 @@ class StatementService:
                 summary=report_data["summary"],
                 total_income=report_data["total_income"],
                 total_expenses=report_data["total_expenses"],
-                category_breakdown=report_data["category_breakdown"]
+                category_breakdown=report_data["category_breakdown"],
+                top_transfers=report_data["top_transfers"]
             )
 
             await self.repo.update_status(statement.id, "done")

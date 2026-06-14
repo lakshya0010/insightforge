@@ -31,14 +31,16 @@ class StatementRepository:
             summary:str,
             total_income:float,
             total_expenses: float,
-            category_breakdown: dict
+            category_breakdown: dict,
+            top_transfers:dict
     ) -> Report:
         report = Report(
             statement_id = statement_id,
             summary = summary,
             total_expenses = Decimal(str(total_expenses)),
             total_income = Decimal(str(total_income)),
-            category_breakdown = category_breakdown
+            category_breakdown = category_breakdown,
+            top_transfers=top_transfers
         )
         self.db.add(report)
         await self.db.commit()

@@ -8,7 +8,7 @@ from app.models.statement import Transaction
 
 logger = logging.getLogger(__name__)
 
-CATEGORIES = ["Food", "Transport", "Entertainment", "Utilities", "Shopping", "Healthcare", "Income", "Other"]
+CATEGORIES = ["Food", "Transport", "Entertainment", "Utilities", "Shopping", "Healthcare", "Income", "Transfer", "Other"]
 
 class LLMService:
     def __init__(self):
@@ -40,10 +40,26 @@ class LLMService:
 
 Valid categories: {", ".join(CATEGORIES)}
 
+Rules:
+- UPI payments TO individual person names (not businesses) → Transfer
+- Received FROM individual person names → Transfer  
+- Metro recharges, Uber, Ola, bus, petrol → Transport
+- Swiggy, Zomato, restaurants, food delivery → Food
+- Salary, stipend, pocket money from family → Income
+- Netflix, movies, games, subscriptions → Entertainment
+- Electricity, water, internet, phone bills → Utilities
+- Amazon, Flipkart, shopping apps → Shopping
+- Hospital, medicine, pharmacy → Healthcare
+- Anything else → Other
+
+Transactions:
 {transaction_text}
 
-Respond with a JSON array of exactly {len(transactions)} category strings, one per transaction in order.
-Do not include any other text."""
+Reply with ONLY a JSON array of exactly {len(transactions)} category strings.
+First character must be [ and last must be ]
+Do not include any other text.
+
+Output:"""
             
         logger.info(f"Categorizing {len(transactions)} transactions")
             
@@ -105,6 +121,27 @@ Do not include any other text."""
         for t in transactions:
             if t.type == "debit" and t.category:
                 category_breakdown[t.category] = (category_breakdown.get(t.category,0) + float(t.amount))
+        transfers = [t for t in transactions if t.category == "Transfer"]
+        transfer_summary = {}
+        for t in transfers:
+            name = t.description.strip()
+            transfer_summary[name] = (
+                transfer_summary.get(name, 0) + float(t.amount)
+            )
+        top_transfers = sorted(
+            transfer_summary.items(),
+            key=lambda x: x[1],
+            reverse=True
+        )[:3]
+
+        if top_transfers:
+            transfer_lines = "\n".join([
+                f"- {name}: ₹{amount:,.0f}"
+                for name, amount in top_transfers
+            ])
+            transfer_text = f"\nTop people you transacted with:\n{transfer_lines}"
+        else:
+            transfer_text = ""
         debit_transactions = [t for t in transactions if t.type =="debit"]
         biggest = max(
             debit_transactions, key = lambda t: t.amount
@@ -136,6 +173,7 @@ Financial Summary:
 
 Spending by Category:
 {breakdown_text}
+{transfer_text}
 
 Write a 3-4 paragraph report that:
 1. Summarizes overall spending vs income
@@ -157,7 +195,8 @@ Address the user as "you"."""
         "summary": summary,
         "total_income": total_income,
         "total_expenses": total_expenses,
-        "category_breakdown": category_breakdown
+        "category_breakdown": category_breakdown,
+        "top_transfers": dict(top_transfers)
         }
 
                 
